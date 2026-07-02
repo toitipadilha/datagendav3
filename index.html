@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DentaAgenda — Sistema completo para clínicas odontológicas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --teal-deep:#0F4C3A;
+    --teal-mid:#17654F;
+    --mint:#EAF3EC;
+    --cream:#FBFAF7;
+    --coral:#FF6B4A;
+    --coral-dark:#E2532F;
+    --ink:#152621;
+    --ink-soft:#5C7167;
+    --line:#DDE6DF;
+    --white:#FFFFFF;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--cream);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px; margin:0 auto; padding:0 32px;}
+  h1,h2,h3{font-family:'Fraunces',serif; letter-spacing:-0.01em; font-weight:600; line-height:1.08;}
+  a{color:inherit; text-decoration:none;}
+  .mono{font-family:'IBM Plex Mono',monospace; letter-spacing:0.04em; text-transform:uppercase; font-size:12px;}
+
+  /* ---------- HEADER ---------- */
+  header{
+    position:sticky; top:0; z-index:50;
+    background:rgba(251,250,247,0.88);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav{display:flex; align-items:center; justify-content:space-between; padding:18px 32px;}
+  .logo{display:flex; align-items:center; gap:10px; font-family:'Fraunces',serif; font-weight:600; font-size:20px; color:var(--teal-deep);}
+  .logo-mark{width:30px; height:30px; border-radius:9px; background:var(--teal-deep); position:relative; flex:none;}
+  .logo-mark::after{
+    content:""; position:absolute; inset:7px; border-radius:3px;
+    background:linear-gradient(135deg, var(--coral), #ffb08f);
+  }
+  nav.links{display:flex; gap:32px; font-size:14.5px; font-weight:500; color:var(--ink-soft);}
+  nav.links a:hover{color:var(--teal-deep);}
+  .nav-cta{display:flex; gap:12px; align-items:center;}
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding:11px 22px; border-radius:10px; font-weight:600; font-size:14.5px;
+    cursor:pointer; border:none; transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .btn-ghost{background:transparent; color:var(--teal-deep); border:1.5px solid var(--line);}
+  .btn-ghost:hover{border-color:var(--teal-deep);}
+  .btn-primary{background:var(--coral); color:#fff; box-shadow:0 8px 20px -8px rgba(255,107,74,0.6);}
+  .btn-primary:hover{transform:translateY(-1px); box-shadow:0 10px 24px -6px rgba(255,107,74,0.7);}
+  .btn-dark{background:var(--teal-deep); color:#fff;}
+  .btn-dark:hover{transform:translateY(-1px);}
+
+  /* ---------- HERO ---------- */
+  .hero{padding:88px 0 60px; position:relative; overflow:hidden;}
+  .hero-grid{display:grid; grid-template-columns:1.05fr 0.95fr; gap:64px; align-items:center;}
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    color:var(--teal-mid); margin-bottom:20px;
+  }
+  .eyebrow::before{content:""; width:6px; height:6px; border-radius:50%; background:var(--coral);}
+  .hero h1{font-size:52px; color:var(--ink); margin-bottom:22px;}
+  .hero h1 em{font-style:normal; color:var(--teal-deep); position:relative;}
+  .hero p.lead{font-size:18px; color:var(--ink-soft); line-height:1.6; max-width:480px; margin-bottom:32px;}
+  .hero-actions{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:28px;}
+  .hero-note{font-size:13.5px; color:var(--ink-soft); display:flex; align-items:center; gap:8px;}
+  .hero-note svg{flex:none;}
+
+  /* Signature: animated agenda strip */
+  .agenda-card{
+    background:var(--white); border:1px solid var(--line); border-radius:20px;
+    padding:22px; box-shadow:0 30px 60px -30px rgba(15,76,58,0.28);
+    position:relative;
+  }
+  .agenda-card-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;}
+  .agenda-card-head .day{font-family:'Fraunces',serif; font-size:17px; font-weight:600;}
+  .agenda-card-head .status{
+    font-size:11.5px; font-weight:600; color:var(--teal-mid); background:var(--mint);
+    padding:5px 10px; border-radius:20px;
+  }
+  .slot{
+    display:grid; grid-template-columns:56px 1fr auto; align-items:center; gap:12px;
+    padding:11px 10px; border-radius:12px; margin-bottom:6px;
+    opacity:0; transform:translateX(-8px);
+    animation:slideIn .5s ease forwards;
+  }
+  .slot .time{font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--ink-soft);}
+  .slot .who{font-size:14px; font-weight:600;}
+  .slot .sub{font-size:12px; color:var(--ink-soft); font-weight:400;}
+  .slot .tag{
+    font-size:11px; font-weight:600; padding:4px 9px; border-radius:20px; white-space:nowrap;
+  }
+  .slot.confirmed{background:var(--mint);}
+  .slot.confirmed .tag{background:#CFE7D6; color:var(--teal-deep);}
+  .slot.waiting{background:#FBF3EC;}
+  .slot.waiting .tag{background:#FBDCC9; color:var(--coral-dark);}
+  .slot.reactivated{background:#F1EEFB;}
+  .slot.reactivated .tag{background:#DED6F7; color:#5B3FA6;}
+  .slot:nth-child(2){animation-delay:.15s;}
+  .slot:nth-child(3){animation-delay:.3s;}
+  .slot:nth-child(4){animation-delay:.45s;}
+  .slot:nth-child(5){animation-delay:.6s;}
+  @keyframes slideIn{to{opacity:1; transform:translateX(0);}}
+  .agenda-foot{
+    display:flex; justify-content:space-between; margin-top:16px; padding-top:16px;
+    border-top:1px dashed var(--line); font-size:12.5px; color:var(--ink-soft);
+  }
+  .agenda-foot b{color:var(--teal-deep); font-family:'Fraunces',serif; font-size:16px;}
+
+  @media(prefers-reduced-motion: reduce){
+    .slot{animation:none; opacity:1; transform:none;}
+  }
+
+  /* ---------- TRUST STRIP ---------- */
+  .trust{padding:26px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line);}
+  .trust-inner{display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap;}
+  .trust-item{display:flex; align-items:center; gap:10px; font-size:13.5px; color:var(--ink-soft); font-weight:500;}
+  .trust-item svg{color:var(--teal-mid); flex:none;}
+
+  /* ---------- SECTION HEADS ---------- */
+  .section{padding:96px 0;}
+  .section-head{max-width:620px; margin-bottom:52px;}
+  .section-head .mono{color:var(--coral-dark); display:block; margin-bottom:12px;}
+  .section-head h2{font-size:38px; color:var(--ink);}
+  .section-head p{color:var(--ink-soft); font-size:16.5px; margin-top:14px; line-height:1.6;}
+
+  /* ---------- FEATURES ---------- */
+  .feat-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
+  .feat-card{
+    background:var(--white); border:1px solid var(--line); border-radius:18px; padding:28px;
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .feat-card:hover{transform:translateY(-4px); box-shadow:0 20px 40px -24px rgba(15,38,33,0.25);}
+  .feat-icon{
+    width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+    background:var(--mint); color:var(--teal-deep); margin-bottom:18px;
+  }
+  .feat-card.highlight{background:var(--teal-deep); border-color:var(--teal-deep);}
+  .feat-card.highlight .feat-icon{background:rgba(255,255,255,0.14); color:#fff;}
+  .feat-card.highlight h3, .feat-card.highlight p{color:#fff;}
+  .feat-card.highlight p{color:rgba(255,255,255,0.78);}
+  .feat-card.highlight .badge{
+    display:inline-block; margin-top:14px; font-size:11.5px; font-weight:700;
+    background:var(--coral); color:#fff; padding:5px 10px; border-radius:20px;
+  }
+  .feat-card h3{font-size:18px; margin-bottom:8px; font-weight:600;}
+  .feat-card p{font-size:14.5px; color:var(--ink-soft); line-height:1.55;}
+
+  /* ---------- SPLIT (financeiro) ---------- */
+  .split{display:grid; grid-template-columns:0.9fr 1.1fr; gap:64px; align-items:center;}
+  .split-visual{
+    background:var(--white); border:1px solid var(--line); border-radius:20px; padding:26px;
+    box-shadow:0 30px 60px -34px rgba(15,76,58,0.25);
+  }
+  .split-visual .row{display:flex; justify-content:space-between; align-items:center; padding:12px 4px; border-bottom:1px solid var(--mint);}
+  .split-visual .row:last-child{border-bottom:none;}
+  .split-visual .row .label{font-size:13.5px; color:var(--ink-soft);}
+  .split-visual .row .val{font-family:'IBM Plex Mono',monospace; font-size:14.5px; font-weight:500;}
+  .split-visual .val.pos{color:var(--teal-deep);}
+  .split-visual .val.neg{color:var(--coral-dark);}
+  .bars{display:flex; align-items:flex-end; gap:6px; height:80px; margin:20px 0 4px;}
+  .bars div{flex:1; border-radius:4px 4px 0 0; background:var(--mint);}
+  .bars div.up{background:linear-gradient(180deg, #59B48A, var(--teal-deep));}
+  .split-copy ul{margin-top:22px; display:flex; flex-direction:column; gap:16px;}
+  .split-copy li{display:flex; gap:14px; align-items:flex-start; font-size:15px; color:var(--ink); line-height:1.5;}
+  .split-copy li svg{flex:none; margin-top:2px; color:var(--teal-deep);}
+
+  /* ---------- PRICING ---------- */
+  .price-wrap{display:grid; grid-template-columns:1fr 1fr; gap:24px;}
+  .price-card{
+    border-radius:22px; padding:36px; border:1px solid var(--line); background:var(--white);
+  }
+  .price-card.main{
+    background:var(--teal-deep); border-color:var(--teal-deep); color:#fff; position:relative; overflow:hidden;
+  }
+  .price-card.main::before{
+    content:""; position:absolute; top:-60px; right:-60px; width:200px; height:200px; border-radius:50%;
+    background:radial-gradient(circle, rgba(255,107,74,0.35), transparent 70%);
+  }
+  .price-tag{font-size:12.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--teal-mid); margin-bottom:14px; display:block;}
+  .price-card.main .price-tag{color:#B8E0CC;}
+  .price-amount{display:flex; align-items:baseline; gap:6px; margin-bottom:6px;}
+  .price-amount .num{font-family:'Fraunces',serif; font-size:46px; font-weight:600;}
+  .price-amount .cur{font-size:16px; font-weight:600;}
+  .price-amount .per{font-size:14px; color:var(--ink-soft);}
+  .price-card.main .price-amount .per{color:rgba(255,255,255,0.65);}
+  .price-card p.desc{color:var(--ink-soft); font-size:14px; margin-bottom:22px;}
+  .price-card.main p.desc{color:rgba(255,255,255,0.75);}
+  .price-list{display:flex; flex-direction:column; gap:12px; margin-bottom:26px;}
+  .price-list div{display:flex; gap:10px; font-size:14.5px; align-items:flex-start;}
+  .price-list svg{flex:none; margin-top:2px; color:var(--teal-deep);}
+  .price-card.main .price-list svg{color:#7FD9A8;}
+
+  /* ---------- CTA FOOTER ---------- */
+  .cta-band{
+    background:var(--teal-deep); border-radius:28px; padding:64px 56px; margin:0 32px 96px;
+    display:flex; align-items:center; justify-content:space-between; gap:40px; flex-wrap:wrap;
+    max-width:1116px; margin-left:auto; margin-right:auto;
+  }
+  .cta-band h2{color:#fff; font-size:32px; max-width:440px;}
+  .cta-band p{color:rgba(255,255,255,0.75); margin-top:10px; font-size:15px;}
+  .cta-actions{display:flex; gap:12px;}
+
+  footer{border-top:1px solid var(--line); padding:36px 0; }
+  .foot-inner{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;}
+  .foot-inner .mono{color:var(--ink-soft);}
+
+  @media(max-width:920px){
+    .hero-grid, .split, .price-wrap, .feat-grid{grid-template-columns:1fr;}
+    .hero h1{font-size:38px;}
+    .cta-band{padding:44px 28px;}
+    .cta-band h2{font-size:26px;}
+    nav.links{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav wrap">
+    <div class="logo"><span class="logo-mark"></span>DentaAgenda</div>
+    <nav class="links">
+      <a href="#recursos">Recursos</a>
+      <a href="#financeiro">Financeiro</a>
+      <a href="#planos">Planos</a>
+    </nav>
+    <div class="nav-cta">
+      <a href="#" class="btn btn-ghost">Acessar</a>
+      <a href="#planos" class="btn btn-primary">Teste grátis</a>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow mono">Sistema para clínicas odontológicas</span>
+      <h1>Sua agenda cheia.<br>Sua cabeça <em>livre</em>.</h1>
+      <p class="lead">Agenda com confirmação automática, prontuário digital, financeiro completo e recuperação de pacientes parados — tudo em um só sistema, feito para o dia a dia real de uma clínica.</p>
+      <div class="hero-actions">
+        <a href="#planos" class="btn btn-primary">Testar grátis por 7 dias</a>
+        <a href="#" class="btn btn-ghost">Falar com um especialista</a>
+      </div>
+      <div class="hero-note">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#17654F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Não precisa de cartão de crédito
+      </div>
+    </div>
+
+    <div class="agenda-card">
+      <div class="agenda-card-head">
+        <span class="day">Qui, 02 de julho</span>
+        <span class="status">Hoje</span>
+      </div>
+      <div class="slot confirmed">
+        <span class="time">09:00</span>
+        <span><span class="who">Marina Souza</span><br><span class="sub">Limpeza + avaliação</span></span>
+        <span class="tag">Confirmado</span>
+      </div>
+      <div class="slot waiting">
+        <span class="time">10:30</span>
+        <span><span class="who">Carlos Eduardo</span><br><span class="sub">Canal — 2ª sessão</span></span>
+        <span class="tag">Aguardando</span>
+      </div>
+      <div class="slot reactivated">
+        <span class="time">14:00</span>
+        <span><span class="who">Ana Beatriz</span><br><span class="sub">Sem visitas há 8 meses</span></span>
+        <span class="tag">Reativado</span>
+      </div>
+      <div class="slot confirmed">
+        <span class="time">15:30</span>
+        <span><span class="who">Roberto Lima</span><br><span class="sub">Retorno ortodontia</span></span>
+        <span class="tag">Confirmado</span>
+      </div>
+      <div class="agenda-foot">
+        <span>Taxa de comparecimento hoje</span>
+        <b>94%</b>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="trust wrap">
+  <div class="trust-inner">
+    <div class="trust-item"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M12 2v20M2 12h20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Multi-tenant — cada clínica com seu ambiente isolado</div>
+    <div class="trust-item"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="10" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M7 11V7a5 5 0 0110 0v4" stroke="currentColor" stroke-width="1.8"/></svg>Dados hospedados no Brasil</div>
+    <div class="trust-item"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="1.8"/></svg>Suporte direto com quem desenvolve</div>
+  </div>
+</div>
+
+<section class="section" id="recursos">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="mono">Recursos</span>
+      <h2>Feito pra clínica que já cansou de sistema engessado</h2>
+      <p>Cada módulo resolve um problema real de rotina — não é uma lista de funcionalidades por funcionalidade.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card highlight">
+        <div class="feat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 1018 0 9 9 0 00-18 0z" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v4l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+        <h3>Pacientes Parados</h3>
+        <p>Identifica automaticamente quem sumiu da clínica e organiza a campanha de reativação — receita que já é sua, só esquecida na base.</p>
+        <span class="badge">Exclusivo DentaAgenda</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="17" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M3 9h18M8 2v4M16 2v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+        <h3>Agenda inteligente</h3>
+        <p>Confirmação automática, controle de faltas e visão por cadeira, sem depender de caderno ou planilha paralela.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 4h16v16H4z" stroke="currentColor" stroke-width="1.8"/><path d="M8 9h8M8 13h8M8 17h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+        <h3>Prontuário digital</h3>
+        <p>Histórico clínico, evoluções e anexos organizados por paciente, acessíveis de qualquer lugar.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+        <h3>Financeiro completo</h3>
+        <p>Contas a pagar e receber, comissão por profissional e visão real do caixa da clínica em um painel só.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+        <h3>Painel multi-clínica</h3>
+        <p>Se você administra mais de uma unidade ou franquia, acompanha todas em um único painel de gestão.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M2 8h20" stroke="currentColor" stroke-width="1.8"/></svg></div>
+        <h3>Acesso de qualquer lugar</h3>
+        <p>Interface responsiva — funciona bem tanto no computador da recepção quanto no celular do dentista.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="financeiro" style="background:var(--mint); border-top:1px solid var(--line); border-bottom:1px solid var(--line);">
+  <div class="wrap split">
+    <div class="split-visual">
+      <div class="row"><span class="label">Receitas do mês</span><span class="val pos">R$ 32.480,00</span></div>
+      <div class="row"><span class="label">Despesas do mês</span><span class="val neg">R$ 11.960,00</span></div>
+      <div class="row"><span class="label">Débitos em atraso</span><span class="val neg">R$ 1.340,00</span></div>
+      <div class="bars">
+        <div style="height:40%"></div><div style="height:55%" class="up"></div><div style="height:35%"></div>
+        <div style="height:70%" class="up"></div><div style="height:50%"></div><div style="height:80%" class="up"></div>
+        <div style="height:60%"></div>
+      </div>
+      <div class="row"><span class="label">Saldo projetado</span><span class="val pos">R$ 20.520,00</span></div>
+    </div>
+    <div class="split-copy">
+      <span class="mono" style="color:var(--coral-dark);">Financeiro</span>
+      <h2 style="font-size:32px; margin-top:12px;">O caixa da clínica, sem depender de planilha à parte</h2>
+      <ul>
+        <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Contas a pagar e a receber vinculadas ao paciente e ao atendimento</li>
+        <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Comissão por profissional calculada automaticamente</li>
+        <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Débitos em atraso visíveis logo na entrada do sistema</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="planos">
+  <div class="wrap">
+    <div class="section-head" style="margin-left:auto; margin-right:auto; text-align:center; max-width:560px;">
+      <span class="mono">Planos</span>
+      <h2>Preço simples, sem contrato de fidelidade</h2>
+      <p>Um plano único com tudo incluso. Sem módulo trancado atrás de plano superior.</p>
+    </div>
+    <div class="price-wrap">
+      <div class="price-card main">
+        <span class="price-tag">Plano completo</span>
+        <div class="price-amount"><span class="cur">R$</span><span class="num">97</span><span class="per">/mês por clínica</span></div>
+        <p class="desc">Agenda, prontuário, financeiro e reativação de pacientes — sem taxa por funcionalidade extra.</p>
+        <div class="price-list">
+          <div><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Agenda com confirmação automática</div>
+          <div><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Prontuário digital completo</div>
+          <div><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Financeiro e controle de comissões</div>
+          <div><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Módulo Pacientes Parados</div>
+          <div><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Suporte direto via WhatsApp</div>
+        </div>
+        <a href="#" class="btn btn-primary" style="width:100%;">Começar teste grátis</a>
+      </div>
+      <div class="price-card">
+        <span class="price-tag">Implantação assistida</span>
+        <div class="price-amount"><span class="cur">R$</span><span class="num">200</span><span class="per">taxa única</span></div>
+        <p class="desc">Para clínicas que preferem começar com ajuda: migração de dados, configuração e treinamento da equipe.</p>
+        <div class="price-list">
+          <div><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Importação da base de pacientes atual</div>
+          <div><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Configuração de agenda e equipe</div>
+          <div><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Treinamento da recepção</div>
+        </div>
+        <a href="#" class="btn btn-ghost" style="width:100%;">Falar com um especialista</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="cta-band">
+  <div>
+    <h2>Pronto pra tirar a clínica do papel?</h2>
+    <p>7 dias grátis, sem cartão de crédito. Configuração leva menos de um dia.</p>
+  </div>
+  <div class="cta-actions">
+    <a href="#planos" class="btn btn-primary">Testar grátis</a>
+    <a href="#" class="btn" style="background:rgba(255,255,255,0.12); color:#fff;">Falar no WhatsApp</a>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap foot-inner">
+    <div class="logo" style="font-size:16px;"><span class="logo-mark" style="width:24px;height:24px;"></span>DentaAgenda</div>
+    <span class="mono">Toiti Sistemas · dentaagenda.toitisistemas.com.br</span>
+  </div>
+</footer>
+
+</body>
+</html>
